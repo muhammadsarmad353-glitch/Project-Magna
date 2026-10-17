@@ -1,0 +1,33 @@
+name: gen_open_5
+closed: false
+width: 5.5
+cone_spacing: 5.0
+start_offset: 8.0
+finish_runoff: 40.0
+origin: [0.0, 0.0, 0.0]
+segments:
+- {type: straight, length: 30.0}
+- {type: arc, radius: 21.8, angle: -113.4}
+- {type: arc, radius: 43.4, angle: -37.1}
+- {type: slalom, cycles: 3, wavelength: 28.3, swing: 2.3, first: left}
+- {type: arc, radius: 17.1, angle: -66.3}
+- {type: arc, radius: 10.2, angle: 163.6, width: 6.5}
+- {type: slalom, cycles: 1, wavelength: 29.0, swing: 3.4, first: left}
+- {type: arc, radius: 32.2, angle: 34.2}
+- {type: arc, radius: 29.6, angle: -34.4}
+- {type: arc, radius: 12.3, angle: 69.4}
+- {type: slalom, cycles: 1, wavelength: 27.1, swing: 2.9, first: right}
+- {type: slalom, cycles: 1, wavelength: 29.3, swing: 3.3, first: left}
+- {type: straight, length: 14.2}
+- {type: slalom, cycles: 1, wavelength: 28.1, swing: 3.0, first: left}
+- {type: arc, radius: 42.8, angle: 96.5}
+- {type: straight, length: 18.1}
+- {type: straight, length: 26.0}
+- {type: arc, radius: 38.6, angle: -85.2}
+- {type: arc, radius: 26.3, angle: 55.7}
+- {type: slalom, cycles: 1, wavelength: 30.0, swing: 3.1, first: right}
+- {type: straight, length: 55.0}
+obstacles:
+- {s: 380.4, offset: 1.72, width: 1.45}
+- {s: 401.8, offset: -1.5, width: 1.91}
+- {s: 511.1, offset: 1.47, width: 1.97}

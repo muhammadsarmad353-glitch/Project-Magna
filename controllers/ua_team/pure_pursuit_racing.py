@@ -68,6 +68,24 @@ class PurePursuitRacing(Controller):
         self.k_ff = g("k_ff", 0.0)
         self.grip_cap = g("grip_cap", 1.0)
         self.esc_deg = g("esc_deg", 4.5)
+        # drive mode. "sport" (default) = the scored settings above. "comfort" = consumer /
+        # passenger mode: caps lateral and longitudinal acceleration and jerk.
+        self.mode = str(c.get("mode", "sport")).lower()
+        self.comfort = self.mode == "comfort"
+        self.prev_a = 0.0
+        om = c.get("obs_open_margin", 0.3 if self.comfort else None)
+        self.open_margin = None if om is None else float(om)
+        self.rear_ref = bool(c.get("rear_axle_ref", self.comfort))
+        if self.comfort:
+            a_lat_c = g("comfort_lat_g", 0.35) * G
+            a_lon_c = g("comfort_lon_g", 0.30) * G
+            self.mu_frac = min(self.mu_frac, a_lat_c / (vehicle.mu * G))
+            self.dec_frac = min(self.dec_frac, a_lon_c / vehicle.max_decel)
+            self.acc_frac = min(self.acc_frac, a_lon_c / vehicle.max_accel)
+            # worst-case hairpin beyond the preview: allow a firmer (but still gentle) stop
+            self.hid_dec = min(self.hid_dec, g("comfort_emergency_g", 0.45) * G / vehicle.max_decel)
+            self.a_lon_c = a_lon_c
+            self.jerk = g("comfort_jerk", 2.5)          # m/s^3, longitudinal jerk limit
         self.anchor_tol = g("anchor_tol", 0.0)
         self.blend_t = g("blend_t", 0.6)
         self.blend_min = g("blend_min", 6.0)
@@ -158,8 +176,12 @@ class PurePursuitRacing(Controller):
             gap_right = ob.lateral_min + float(np.mean(wr[iw]))
             if gap_left > gap_right:      # pass left of it
                 lo[iw] = np.maximum(lo[iw], ob.lateral_max + self.half_w + self.obs_margin)
+                if self.open_margin is not None:   # use the open side's spare room
+                    hi[iw] = np.maximum(hi[iw], wl[iw] - self.half_w - self.open_margin)
             else:                         # pass right of it
                 hi[iw] = np.minimum(hi[iw], ob.lateral_min - self.half_w - self.obs_margin)
+                if self.open_margin is not None:
+                    lo[iw] = np.minimum(lo[iw], -(wr[iw] - self.half_w - self.open_margin))
         bad = lo > hi
         if bad.any():
             mid = 0.5 * (lo[bad] + hi[bad])
@@ -267,6 +289,10 @@ class PurePursuitRacing(Controller):
         cps, sps = math.cos(psi), math.sin(psi)
         q = path - np.array([px, py])
         q = np.column_stack((cps * q[:, 0] + sps * q[:, 1], -sps * q[:, 0] + cps * q[:, 1]))
+        if self.rear_ref:
+            # classic pure-pursuit geometry is referenced to the rear axle; using the CG makes the
+            # car cut the inside of tight low-speed corners (no tyre slip to hide it)
+            q = q + np.array([vp.cg_to_rear, 0.0])
         ld = float(np.clip(self.k_ld * v + self.ld0, self.ld_min, self.ld_max))
         d = np.hypot(q[:, 0], q[:, 1])
         i0 = int(np.argmin(d))
@@ -302,6 +328,15 @@ class PurePursuitRacing(Controller):
         if v_pp < v_tgt:
             v_tgt = v_pp
             a_cmd = min(a_cmd, self.kp_v * (v_tgt - v))
+        if self.comfort:
+            # cap longitudinal accel and jerk; only exceed the comfort braking level if the speed
+            # plan says it is needed to make the next corner (safety over comfort)
+            emergency = v > v_tgt + 1.0 and a_cmd < -self.a_lon_c
+            lo_a = -2.0 * self.a_lon_c if emergency else -self.a_lon_c
+            a_cmd = float(np.clip(a_cmd, lo_a, self.a_lon_c))
+            dj = self.jerk * vp.control_dt * (3.0 if emergency else 1.0)
+            a_cmd = float(np.clip(a_cmd, self.prev_a - dj, self.prev_a + dj))
+        self.prev_a = a_cmd
         if a_cmd >= 0:
             lat_use = min(abs(obs.ay) / (vp.mu * G), 1.0)
             cap = max(math.sqrt(max(1.0 - lat_use ** 2, 0.0)), 0.15)

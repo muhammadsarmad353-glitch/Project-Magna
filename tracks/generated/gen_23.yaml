@@ -1,0 +1,33 @@
+name: gen_open_23
+closed: false
+width: 5.5
+cone_spacing: 5.0
+start_offset: 8.0
+finish_runoff: 40.0
+origin: [0.0, 0.0, 0.0]
+segments:
+- {type: straight, length: 30.0}
+- {type: slalom, cycles: 2, wavelength: 23.3, swing: 2.2, first: left}
+- {type: arc, radius: 20.5, angle: -116.9}
+- {type: arc, radius: 42.0, angle: 64.1}
+- {type: straight, length: 21.4}
+- {type: straight, length: 44.3}
+- {type: slalom, cycles: 1, wavelength: 29.3, swing: 2.8, first: right}
+- {type: straight, length: 16.2}
+- {type: straight, length: 40.5}
+- {type: straight, length: 22.0}
+- {type: arc, radius: 33.9, angle: -65.0}
+- {type: straight, length: 37.2}
+- {type: arc, radius: 20.5, angle: 110.4}
+- {type: arc, radius: 20.1, angle: 74.6}
+- {type: slalom, cycles: 1, wavelength: 27.5, swing: 2.5, first: left}
+- {type: straight, length: 36.0}
+- {type: arc, radius: 26.5, angle: 43.6}
+- {type: arc, radius: 43.7, angle: -52.4}
+- {type: arc, radius: 16.0, angle: 86.2}
+- {type: arc, radius: 26.4, angle: -55.3}
+- {type: straight, length: 55.0}
+obstacles:
+- {s: 253.4, offset: 1.76, width: 1.37}
+- {s: 358.5, offset: 1.63, width: 1.63}
+- {s: 397.0, offset: 1.81, width: 1.29}

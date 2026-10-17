@@ -1,0 +1,5 @@
+# Comfort / consumer demo mode for controllers/ua_team/pure_pursuit_racing.py
+mode: comfort
+comfort_lat_g: 0.35    # lateral acceleration cap
+comfort_lon_g: 0.30    # throttle / brake acceleration cap
+comfort_jerk: 2.5      # m/s^3 longitudinal jerk limit

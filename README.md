@@ -307,3 +307,14 @@ python -m pytest            # 59 tests, ~35 s, no CARLA required (includes anti-
 ```
 
 The official evaluation should be run on a single reference machine, because the 50 ms deadline depends on the machine.
+
+---
+
+## UA Team controller (HackBama)
+
+Our team's controller is in [`controllers/ua_team/`](controllers/ua_team/README.md). It does pure pursuit on a minimum-curvature racing line, with a friction-circle speed plan, a grip observer, stability control, and sport and comfort modes. It scores about 71.3 / 75 technical points on the public courses (baseline 62.3) with 0 cones. See its README for design, run commands and score tables. Quick start:
+
+```bash
+python -m autocross selftest -c controllers/ua_team/pure_pursuit_racing.py
+python -m autocross run -c controllers/ua_team/pure_pursuit_racing.py -t tracks/practice_technical.yaml --backend bicycle --view --realtime
+```
